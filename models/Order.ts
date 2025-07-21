@@ -1,16 +1,28 @@
 // models/Order.ts
 
-import mongoose from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
-const orderSchema = new mongoose.Schema(
+export interface IOrder extends Document {
+  email: string;
+  txid: string;
+  tier: string;
+  status: string;
+  downloadLink?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+const OrderSchema = new Schema<IOrder>(
   {
     email: { type: String, required: true },
     txid: { type: String, required: true },
     tier: { type: String, required: true },
-    status: { type: String, default: "Pending" }, // or "Delivered"
-    downloadLink: { type: String }, // optional download URL
+    status: { type: String, default: "pending" },
+    downloadLink: { type: String },
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Order || mongoose.model("Order", orderSchema);
+const Order = mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);
+
+export default Order;
