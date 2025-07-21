@@ -1,42 +1,29 @@
 // pages/api/admin/deliver.ts
 
-import dbConnect from "@/lib/db";
-import Order from "@/models/Order";
-import { sendMail } from "@/lib/mailer";
 import { NextApiRequest, NextApiResponse } from "next";
+import { connectDB } from "@/lib/db";
+import Order from "@/models/Order";
+import { sendDeliveryEmail } from "@/lib/mailer";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  await dbConnect();
+  if (req.method !== "POST") return res.status(405).json({ message: "Method not allowed" });
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ success: false, message: "Method not allowed" });
-  }
+  const { email, txid, zipLink } = req.body;
 
-  const { id, link } = req.body;
+  if (!email || !txid || !zipLink)
+    return res.status(400).json({ message: "Missing required fields" });
 
-  if (!id || !link) {
-    return res.status(400).json({ success: false, message: "Missing fields" });
-  }
+  await connectDB();
 
-  try {
-    const order = await Order.findById(id);
-    if (!order) return res.status(404).json({ success: false, message: "Order not found" });
+  const order = await Order.findOne({ email, txid });
 
-    order.status = "Delivered";
-    order.downloadLink = link;
-    await order.save();
+  if (!order) return res.status(404).json({ message: "Order not found" });
 
-    // Send email to buyer
-    await sendMail({
-      to: order.email,
-      subject: "Your RMP Purchase is Ready",
-      html: `<p>Thank you for purchasing <strong>${order.tier}</strong> license.</p>
-        <p>Your download link: <a href="${link}" target="_blank">${link}</a></p>
-        <p>Keep this safe. Enjoy using the Request Management Portal.</p>`,
-    });
+  order.status = "Delivered";
+  order.zipLink = zipLink;
+  await order.save();
 
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Server error" });
-  }
+  await sendDeliveryEmail(email, zipLink);
+
+  res.status(200).json({ message: "Order delivered and email sent" });
 }
