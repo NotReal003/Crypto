@@ -1,11 +1,16 @@
 // app/admin/page.tsx
-
+import { headers } from "next/headers";
 import AdminOrderCard from "@/components/AdminOrderCard";
 
 async function getOrders() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/orders`, {
+  const headersList = headers();
+  const host = headersList.get("host");
+  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+
+  const res = await fetch(`https://${host}/api/admin/orders`, {
     cache: "no-store",
   });
+
   const data = await res.json();
   return data.orders || [];
 }
