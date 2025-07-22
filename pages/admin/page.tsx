@@ -4,10 +4,9 @@ import AdminOrderCard from "@/components/AdminOrderCard";
 
 async function getOrders() {
   const headersList = headers();
-  const host = headersList.get("host");
-  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
+//  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
 
-  const res = await fetch(`https://${host}/api/admin/orders`, {
+  const res = await fetch(`https://api/admin/orders`, {
     cache: "no-store",
   });
 
