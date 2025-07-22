@@ -1,6 +1,5 @@
 // models/Order.ts
-
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema, Model } from "mongoose";
 
 export interface IOrder extends Document {
   email: string;
@@ -23,6 +22,8 @@ const OrderSchema = new Schema<IOrder>(
   { timestamps: true }
 );
 
-const Order = mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);
+// 👇 Very important for TypeScript to get correct type inference
+const Order: Model<IOrder> =
+  mongoose.models.Order || mongoose.model<IOrder>("Order", OrderSchema);
 
 export default Order;

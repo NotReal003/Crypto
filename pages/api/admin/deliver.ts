@@ -1,5 +1,3 @@
-// pages/api/admin/deliver.ts
-
 import type { NextApiRequest, NextApiResponse } from "next";
 import { connectDB } from "@/lib/db";
 import Order from "@/models/Order";
@@ -17,6 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     await connectDB();
 
+    // ✅ Now this will work correctly
     const order = await Order.findOne({ email, txid });
 
     if (!order) {
@@ -29,9 +28,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await sendDeliveryEmail(email, zipLink);
 
-    res.status(200).json({ success: true, message: "Order delivered successfully" });
-  } catch (err) {
-    console.error("Delivery error:", err);
-    res.status(500).json({ message: "Internal server error" });
+    return res.status(200).json({ success: true, message: "Order delivered" });
+  } catch (error) {
+    console.error("Error in deliver API:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 }
