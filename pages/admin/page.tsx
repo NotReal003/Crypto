@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import AdminOrderCard from "@/components/AdminOrderCard";
 
 async function getOrders() {
-  const headersList = headers();
+//  const headersList = headers();
 //  const protocol = process.env.NODE_ENV === "development" ? "http" : "https";
 
   const res = await fetch(`https://api/admin/orders`, {
